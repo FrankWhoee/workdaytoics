@@ -16,10 +16,6 @@ class RRULE(icsComponent):
         self.interval = interval
         self.byday = byday
     
-    def starts(self, dt: datetime):
-        self.dtstart = dt
-        return self
-    
     def happens(self, interval: int):
         self.interval = interval
         return self
@@ -28,7 +24,22 @@ class RRULE(icsComponent):
         self.freq = freq
         return self
 
-    def on_days_of_the_week(self, *days_of_week):
+    def daily(self):
+        self.freq = "DAILY"
+        return self
+    def weekly(self):
+        self.freq = "WEEKLY"
+        return self
+
+    def monthly(self):
+        self.freq = "MONTHLY"
+        return self
+
+    def yearly(self):
+        self.freq = "YEARLY"
+        return self
+
+    def on_days_of_the_week(self, days_of_week):
         self.byday = days_of_week
         return self
 
@@ -56,14 +67,16 @@ class RRULE(icsComponent):
 
 class Event(icsComponent):
 
-    def __init__(self, dtstart: datetime, dtend, summary, description, geo, rrule):
+    def __init__(self, dtstart: datetime, dtend, summary, description, location, lat, lon, rrule):
         self.uid = str(uuid.uuid4())
         self.dtstamp = dt_to_icsdttz(timezonedt(datetime.now()))
-        self.dtstart = dtstart
-        self.dtend = dtend
+        self.dtstart = timezonedt(dtstart)
+        self.dtend = timezonedt(dtend)
         self.summary = summary
         self.description = description
-        self.geo = geo
+        self.location = location
+        self.lat = lat
+        self.lon = lon
         self.rrule = rrule
 
     def to_ics(self):
@@ -71,15 +84,18 @@ class Event(icsComponent):
 
         output += f"UID:{self.uid}\n"
         output += f"DTSTAMP;{self.dtstamp}\n"
-        output += f"DTSTART:{dt_to_icsdt(self.dtstart)}\n"
-        output += f"DTEND:{dt_to_icsdt(self.dtend)}\n"
+        output += f"DTSTART;{dt_to_icsdttz(self.dtstart)}\n"
+        output += f"DTEND;{dt_to_icsdttz(self.dtend)}\n"
         output += f"SUMMARY:{self.summary}\n"
 
         if self.description:
-            output += f"DESCRIPTION:{self.description};"
+            output += f"DESCRIPTION:{self.description};\n"
 
-        if self.geo:
-            output += f"GEO={self.geo};"
+        if self.location:
+            output += f"LOCATION:{self.location}\n"
+
+        if self.lat and self.lon:
+            output += f"GEO:{self.lat};{self.lon}\n"
 
         if self.rrule:
             output += "RRULE:" + self.rrule.to_ics() + "\n"
@@ -103,9 +119,3 @@ class iCalendar(icsComponent):
         output += "END:VCALENDAR"
 
         return output
-
-r = RRULE().starts(timezonedt(datetime.now())).every("WEEKLY").on_days_of_the_week("TU","TH").untilDate(timezonedt(datetime(2024,12,31)))
-e = Event(datetime(2024,9,5,3,30), datetime(2024,9,5,4,30), "CPSC 421", "Theory of Computing", "IRC 4", r)
-i = iCalendar()
-i.add_event(e)
-print(i.to_ics())
