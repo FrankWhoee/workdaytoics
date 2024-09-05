@@ -3,6 +3,10 @@ app = Flask(__name__)
 
 from src.convert import convert
 
+import os
+
+port = os.getenv("PORT", default=5000)
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -20,4 +24,4 @@ def upload_file():
     return render_template("index.html")
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=port)
