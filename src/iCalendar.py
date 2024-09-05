@@ -1,5 +1,5 @@
 import uuid
-from util import dt_to_icsdttz, timezonedt, dt_to_icsdt
+from src.util import dt_to_icsdttz, timezonedt, dt_to_icsdt
 from datetime import datetime
 
 class icsComponent:

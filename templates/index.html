@@ -1,0 +1,37 @@
+<!doctype html>
+<title>Workday to ICS</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+<h1>Convert your workday spreadsheet to an .ics file</h1>
+<p><b>Where to download:</b> Menu > Academics > Registraction & Courses > View My Courses > Small Spreadsheet Icon on the right corner of the My Enrolled Courses table > Download</p>
+<form method=post enctype=multipart/form-data>
+    <input type=file name=file>
+    <input type=submit value=Upload>
+</form>
+<br>
+<a id="downloadClick" href="" onClick="downloadCal()">Download File</a>
+<p style="display:none" id="cal">{{ cal }}</p>
+
+<script>
+    if (document.getElementById("cal").innerText !== "") {
+        document.getElementById("downloadClick").style.display = "block"
+    } else {
+        document.getElementById("downloadClick").style.display = "none"
+    }
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    function downloadCal() {
+        download("course_calendar.ics", document.getElementById("cal").innerText)
+    }
+</script>
